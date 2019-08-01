@@ -1,0 +1,49 @@
+some key points and definitions in machine learning:
+
+
+
+relative importance of steps: question>input data>features>algorithm
+i.e. algorithm is least important among data and question. a good data collection and question will give almost same result in basic model and very advanced optimized model.
+
+In sample error is model error in training set. it is often optimistic due to overfitting or training set noise adjustment.
+Out sample error is model error in test set. it is the main error and more than in sample error.
+
+types of errors:
+sensitivity= true positive eg detecting disease when disease exists
+false positives= predicting exists when actually does not exist
+specificity= true negative eg not detecting disease when disease does not exist
+false negative= predicting does not exist when actually exists
+positive prediction rate= exists/given positive prediction eg disease when disease is predicted
+negative prediction rate= doesnt exist/given negative prediction eg no disease when disease is not predicted
+roc curves: 1-specifity(false positive) on x-axis and sensitivity(true positive) on y-axis. the area under curve represents accuracy.top left corner most accurate.
+
+let n be total test subjects. then:
+diseased=rate*n
+non-diseased=n-diseased
+tp=sens*diseased	
+tn=spec*nondiseased
+fp=sens*nondiseased
+fn=spec*diseased
+sens =tp/(tp+fn)
+spec =tn/(tn+fp)
+disease=(tp+fn)
+not diseased=(tn+fp)
+p(disease/pos)=tp/tp+fp
+
+
+
+dividing data into training and testing:
+large data: 60% training 20% testing 20% validating
+medium data: 60% training 40% testing
+small data: only training 
+
+
+cross validation: subdividing training data into training and testing data and iterating to get best results.the original test is kept alone for out of sample error rate.
+types of cross validation:
+1) random subsampling: randomly sample training set into trainin and testing again and again.
+   random subsampling without replacement is usually used. with replacement it is bootstrapping.bootstrapping underestimates error.
+2) k-fold: split training data into and testing by k folds. every iteration keep k-1 fold for training and 1 for testing.
+3) leave one out: basically k fold with k= no of sample size (n)
+   k-fold: k large gives low bias and high variance
+	k small gives large variance and low bias
+note:for time series data data must be divided by chunks of time and not randomly.
