@@ -1,5 +1,6 @@
 #Model Based Prediction:
 #Discriminant analysis used with categorical outcome and only continuous predictors.
+#It is used to separate categories.
 library(caret)
 partition<-createDataPartition(y=iris$Species,p=0.7,list=F)
 training<-iris[partition,]
