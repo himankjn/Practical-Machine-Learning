@@ -1,0 +1,184 @@
+notes:
+
+train/test/validation split:
+TRAINING(MODEL BUILDING)
+VALIDATION (MODEL SELECTION & OPTIMIZATION eg. grid search cv)
+TEST(MODEL FINAL EVALUATION)
+
+
+
+eda
+feature extraction
+transform: min/max scale, normalize,stadardize   (may lose interpretability for accuracy)
+dimension reduction (if required)
+model choose
+evalution
+
+
+Models:
+KNN:
+knn works well non linear boundaries and small dataset.
+does not work well for real time classification like email spam as its slow. (naive bayes works better)
+
+
+Regression:
+1) Regularization introduces penalty term for laarge coefficients.
+regualarized linear regression used for relatively less data observations compared to features. necessary to scale. basically introduces bias. i.e simplifies model.
+types of regularized are:
+ridge: parameter alpha. higher alpha means higher penalty for large coefficients. uses L2 regularization penalty (alpha * sum of squares of coef)
+lasso: parameter alpha. uses L1 regualarization (alpha * sum of absolute coef). converts less important coef to zero.
+use ridge when most variables are useful and lasso when most variables are useless as it makes their coeff zero.
+
+2) polynomial linear regression:
+y=ax1+bx2+cx1x2+dx1^2+ex2^2
+it captures interactions between different variables that simple linera regression cant.
+often combined with regularization as the number of variables increase with polynomial terms
+
+3) Logistic Regression:
+Can be used to classify binary classes.
+gives result as a probabilty b/w 0 and 1
+e(p)/1+e(p)
+interpret coef: coef give log of odds of outcome given 1 unit increase in variable. 
+in sklearn. parameter c controls regularization. c is basically variance(complexity) of mode. c increases variance increses and bias decreases.default: 1
+
+4)Poisson Regression:
+used for count data. e^coef gives estimated mean increase per unit increase in variable
+
+SVM:
+classifier. that use maximum margin. (maximize distnce between two classes using a hyperplane)
+kernels: are basically the way to separate classes. Linea kernel gives a linearly separable svm hyperplane.
+C is regularization parameter.  c is basically variance(complexity) of mode. c increases variance increses and bias decreases.
+SVM:always scale data.
+used for high or low dimensional data. its versatile to the type of data. Not suitable for very large data sets.
+
+Support vector machines can classify linear or non linearly depending on kernel.
+kernelized svm classify data which are not linearly separble.
+kernelized svm transform the input data space to high dimensional feature space to separate classes. Ex x to [x,x^2].
+kernels are basically similiarity measures between original data point and transformed data point in feature space. (the transformation function)
+Kernels: linear,poly, RBF(radial basis functiton). Default: RBF
+poly: parameter-degree
+rbf: parameter- gamma. gamma determines influence of each trainng point. small gamma = more influence i.e. the influence of every point reacher far.
+
+
+Decision Trees:
+
+prone to overfitting.doesnt generalize well. Only use one feature at a time. hence Scaling is not required, uses only straight lines and many splits are needed for curvature.
+they are fast (binary search), intuitive and interpretable
+control overfitting via limiting max_depth,min_samples,max_leafnodes. 
+pruning or back pruning: remove splits
+generalise using ensemble
+use misclassification error/gini index/id3 for splits.
+gini index= sigma p * (1-p). where p is probability of getting observation right for a particular class. summed over all classes.
+gini index separates off large number of pure cells.
+
+
+
+Random Forest:
+Use multiple dtc and ensemble.
+bootstrap n points from original sammple with replacements to get many samples
+
+bagging: train a classifier on each bootstrapped sample and average the results. It reduces high variancea and overfiiting.
+	
+Random forest: train a classifier on each bootstrap sample and at each split sample from features.  
+parameters: n_estimator: number of trees, max_features: features at each split (1 complex and different trees, n simple and similar trees).max_depth, n_jobs                                     
+
+Naive Bayes:
+called naive coz it assumes no coorelation between features. Based on conditional probability.
+used for text data.
+types:  bernoulli (binary feature like word present or not)
+	multinomial (discrete features like word counts)
+	gaussian (continuous features like mean,std)
+the classes are enclosed in gaussian/normal parabolas 
+The classification boundaries for gaussian naive bayes are parabolic.
+Efficient for large datasets.
+
+
+GradientBoostedDT:
+sequential trees where each tree tries to correct the mistakes of previous trees..
+Weak learners are ensembled.
+paraeters:	Learning rate controls complexity of trees
+		max_depth
+		n_estimators
+
+
+
+
+
+
+Neural nets:
+Multilayer perceptrons use hidden layers in between input and output
+require preprocesssing like normalization
+parameters: hidden_layer_sizes=number of units in each layer, number of layers
+	    alpha = regularization parmeter. higher alpha lower variance.
+	    activation= 'relu','tanh','logistic'
+	    solver= finds optimal weights
+
+
+Classification:
+KNN
+SVM linear or kernalized
+Logistic Regression
+Note: multiclass classsification works by doing binary classification on each class against all other classes and choosing the one with highest probability/score.
+Naive Bayes
+
+REgression:
+Linear- Simple, Multiple, Regularized(penalty):lasso and ridge, polynomial.
+Knn
+SvM
+regression evaluation:
+r2
+mse
+rmse
+amse
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+classification Evaluation:
+
+sensitivit/recall = tp/tp+fn.  	(leans towards classifying +ve)
+fraction of positive class that are classified correctly
+we want to get all positive points classified positive. eg get all cancer patients as postitive even if it means diagonosing healhy ppl as cancer
+
+Precison= tp/tp+fp         	(leans towards classifying -ve)
+fraction of positive predictions that are classified correctly
+we want to get all negative ones right. or reduce false positives. we want to be extremely careful while cclassifying something as positive
+eg commercial ad system. which ad to show.
+
+
+specificity:
+fp/tn+fp
+
+
+f1 score:
+combines recall and precision.
+
+
+
+Power:
+probability of rejectin Ho when it is false
+Confidence interal:
+probability of failing to reject Ho when it is true
+
+
+
+
+Model selection:
+cross_validatiion_score
+gridsearchcv
+
+model can be optimized for different evalutaion metrics like recall precion etc for classification or r2,mse for regression.
+choose depending on application.
+
+
+
