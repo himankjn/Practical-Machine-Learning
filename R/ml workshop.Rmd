@@ -1,0 +1,435 @@
+---
+title: "Ml Workshop"
+author: "Himank Jain"
+date: "02/12/2019"
+output: pdf_document
+---
+
+## Assumptions of Parametric Regression:
+
+* Continuous Response Variable with mean($\mu$) and variance($\sigma^2$).
+* Mean of error terms = 0 with variance($\sigma^2$)
+* Linearity in Coefficients ($\beta_0, \beta_1,....\beta_n$)
+* No Multicollinearity (in Multiple Linear Regression)
+* No autocorrelation
+* Homoscedasticity of errors terms.
+
+### Autocorrelaion:
+Autocorrelation refers to the degree of correlation between the values of the same variables across different observations in the data.
+For example, one might expect the air temperature on the 1st day of the month to be more similar to the temperature on the 2nd day compared to the 31st day. 
+ 
+
+
+
+## Points to ponder:
+
+* Equality of means of two groups can be tested using two group **t-test**.
+* Equality of variances of two groups can be tested using **F-test**
+
+Mean can be postitive or negative. Hence we use t-test since t distribution is symmetric.
+
+Variance can only be positive. Hence we use F-test since it assumes a positively skewed distribution.
+
+$F=\frac{S_X^2}{S_Y^2}$
+where $S_X,S_Y$ are sample variances of two groups.
+
+$t= \frac{x_1-x_2}{\sqrt{\frac{s1^2}{n1} + \frac{s2^2}{n2}}}$
+where $x_1,x_2$ are means and $s1^2,s2^2$ are variances of two groups
+
+## Problems with assumption violations:
+
+### Error mean & variance:
+
+* Since $\hat y= \beta_0 + \beta_1*x$ the error is:
+    
+  $\epsilon=\hat y-y= (\beta_0 + \beta_1*x+\epsilon) - (\beta_0 + \beta_1*x)$
+  
+  
+
+Variance($\epsilon$)=variance($y$)
+
+* mean of errrors needs to be zero and variance needs to be $\sigma^2$.
+
+### Multicollinearity Problem:
+
+Multicollinearity is a phenomenon in which one predictor variable in a multiple regression model can be linearly predicted from the others with a substantial degree of accuracy i.e. Independent variables are highly Correlated.
+
+$\beta$= $(X^tX)^{-1}X^{-1}Y$
+Let $A$=$(X^tX)$
+Let $A$= $\begin{bmatrix}1 & 4 \\2 & 5 \\ 3 & 6\end{bmatrix}$
+let the two columns of matrix A be two variables.
+We can see $Col_1+3=Col_2$
+hence, they are correlated.
+then determinant of matrix A $|A|$=0
+Hence $A^{-1}=\frac{1}{|A|}adj(A)$ is very large.
+Therefore even the regression coefficient are very large. This is the problem of multicollinearity.
+
+### Heteroscedasticity Problem:
+Homoscedasticity is a situation in which the variance of error terms is the same across all values of the independent variables. Heteroscedasticity is quite the opposite. i.e. non constant variance of error terms.
+
+Earlier we deduced that $V(\epsilon) =V(y)$
+Hence if variance of errors is not constant neither is the variance of response variable. This violates our first assumption.
+
+# Tests for testing normality and it's assumptions:
+
+### Tests for checking Normality:
+
+```{r}
+
+library(datarium)
+head(marketing)
+```
+
+Anderson-Darling Test:
+```{r}
+library(nortest)
+ad.test(marketing$sales)
+```
+p-value is significant. Hence we reject the $H_0$ that sales is normally distributed.
+
+```{r}
+shapiro.test(marketing$sales)
+```
+p-value is significant. Hence we reject the $H_0$ that sales is normally distributed.
+
+* Lilliefors test (Kolmogorov–Smirnov test):
+```{r}
+lillie.test(marketing$sales)
+```
+p-value is significant. Hence we reject the $H_0$ that sales is normally distributed.
+
+### Tests for Multicollinearity:
+
+* Eigen values can be used to detect multicollineatiy 
+
+* t-test of correlation:
+$t=\frac{r-0}{S.E.(r)}$
+where 
+$S.E.(r)= \sqrt{\frac{1-r^2}{n-2}}$
+
+if t statistic is more than critical value we reject the $H_0$ that there is no multicollinearity between two variables.
+
+
+* Variance Inflation Factor(VIF):
+if $y=\beta_0+\beta_1x1+\beta_2x2+.....\beta_nxn$
+then 
+Variation inflation factor for jth variable $VIF(x_j)$ is:
+$VIF(x_j)$=$\frac{1}{1-R_j^2}$
+where
+$R_j^2$ is coefficient of determination of jth variable if it is regressed on all other independent variables.
+
+i.e.
+$R_1^2$=$R^2$ for $x1 \sim x2+x3+x4+.....xn$
+$R_2^2$=$R^2$ for $x2 \sim x1+x3+x4+.....xn$
+etc.
+
+```{r}
+pairs(marketing)
+```
+
+```{r}
+library(car)
+model=lm(data=marketing,sales~.)
+vif(model)
+```
+### Tests for Heteroscedasticity:
+* Breusch pagan test:
+After building Model regress residual squares on independent variables and get it's $R^2$.
+
+$\epsilon^2 \sim \beta_0+\beta_1x1+.... \beta_nxn$
+then the test statstic LM is:
+$LM= NR^2$
+if $LM>\chi_{df=1}^2$ then statistic and significant and we reject $H_0$ that errors are Homoscedastic.
+```{r}refors are homoscedastic.
+
+ 
+### Tests for Autocorrelation:
+
+* Durbin Watson test:
+DW= $\frac{\sum{(\epsilon_t-\epsilon_{t-1})^2}}{\sum\epsilon_t^2}$
+if DW==2 : No Autocorrelation
+if DW>2 : -ve Autocorrelation
+if DW<2 : +ve Autocorrelation
+```{r}
+library(lmtest)
+dwtest(model)
+```
+p-value and test statistic suggest that we fail to reject null hypthesis at 5% level of significant.
+Therefore no problem of autocorrelation.
+
+
+
+# How to make response variable normal and satisfy nomral assumptions?
+
+BoxCoxTransforms or other tranformations.
+The Box-Cox transformation of the variable x is defined as:
+$\frac{X^\lambda-1}{\lambda}$
+
+When normaility isn't satisfied even after transformations it's not feasible to use parametric method for regression like linear regression.
+
+# Extra points:
+
+* if n is number of observations and k is number of features(independent variables) then degree of freedom for regression is $df=n-k$
+* for SLR: $df=n-k=n-1$ and F statistic is equal to t statistic. i.e. $F=t^2$
+
+* For regression, t-statistic tells if a regressor is significant and F statistic tells if a groups of regressors are together significant.
+
+
+* Skewness measures how positively or negatively skewed the distribution is and kurtosis measures how thick or thin tail ends are.
+
+
+# Cross Validation:
+```{r}
+library(caret)
+library(mlbench)
+data("BostonHousing")
+bost<-BostonHousing
+partition=createDataPartition(y=bost$medv,p = 0.7,list=F)
+trainbost<- bost[partition,]
+testbost<- bost[-partition,]
+trcon<-trainControl(method='repeatedcv',number=10,repeats = 3)
+lmodel<-train(data=trainbost,medv~.,method='lm',trControl=trcon)
+lmodel
+R2(testbost$medv,predict(lmodel,testbost))
+RMSE(testbost$medv,predict(lmodel,testbost))
+```
+# PCA:
+PCA is used for dimension reduction and removing Multicollinearity.
+```{r}
+library(car)
+part=createDataPartition(y=mtcars$mpg,p=0.7,list=FALSE)
+traincars=mtcars[part,]
+testcars=mtcars[-part,]
+model=lm(data=traincars,mpg~.)
+vif(model)
+```
+We can observe large multicollinearity due to coefficient inflation.
+```{r}
+pc<-prcomp(traincars[,-1],center=T,scale.=T)
+summary(pc)
+```
+First 5 PC's explain more than 95% variance.
+```{r}
+library(psych)
+pairs.panels(pc$x)
+```
+```{r}
+pctrain<-predict(pc,newdata=traincars)
+pctrain<-as.data.frame(pctrain)
+pctrain$mpg=traincars$mpg
+lmodelmpg<-lm(mpg~PC1+PC2+PC3+PC4+PC5,data=pctrain)
+lmodelmpg
+vif(lmodelmpg)
+```
+Hence no multicollinearity and no variance inflation in model.
+```{r}
+trainpred=predict(lmodelmpg,newdata=pctrain)
+RMSE(trainpred,pctrain$mpg)
+pctestdata=predict(pc,newdata = testcars)
+testpred=predict(lmodelmpg,data.frame(pctestdata))
+RMSE(testpred,testcars$mpg)
+```
+```{r}
+library(factoextra)
+get_eigenvalue(pc)
+```
+we can also keep only eigen values more than 1 still doing a good job with out model.
+
+# Preventing Overfitting
+Increase Bias and reduce Variance of model.
+Introduces penalty term for large coefficients.
+Three types:
+* Ridge regression $\epsilon^2+\lambda\sum\beta_i^2$
+* Lasso regression $\epsilon^2+\lambda\sum|\beta_i|$
+* Elastic regression $\epsilon^2+\lambda((1-\alpha)\sum\beta_i^2+\alpha\sum|\beta_i|)$
+
+```{r}
+# ridge 
+rlm<-train(mpg~.,data=traincars,method='glmnet',trControl=trcon,tuneGrid=expand.grid(alpha=0,lambda=seq(1,10,1)))
+rlm
+plot(rlm$finalModel,label=T)
+plot(varImp(rlm))
+```
+
+```{r}
+# Lasso
+llm<-train(mpg~.,data=traincars,method='glmnet',trControl=trcon,tuneGrid=expand.grid(alpha=1,lambda=seq(1,10,1)))
+llm
+plot(llm$finalModel,label=T)
+plot(varImp(llm))
+```
+
+```{r}
+# Elastic net
+elasticlm<-train(mpg~.,data=traincars,method='glmnet',trControl=trcon,tuneGrid=expand.grid(alpha=seq(0,1,0.1),lambda=seq(1,10,1)))
+elasticlm
+plot(elasticlm$finalModel,label=T)
+plot(varImp(elasticlm))
+
+```
+```{r}
+resultlist<-list(Ridge=rlm,Lasso=llm,Elastic=elasticlm)
+
+final<-resamples(resultlist)
+dotplot(final)
+xyplot(final,lwd=10,metric="RMSE")
+```
+therefore ridge works best for least rmse.
+
+# Missing values:
+
+
+
+```{r}
+library(mice)
+irisdata<-iris
+index=sample(seq(1,150,1),15)
+irisdata$Sepal.Length[index]=NA
+index=sample(seq(1,150,1),15)
+irisdata$Petal.Length[index]=NA
+sum(is.na(irisdata))
+colSums((is.na(irisdata)))
+
+imputed<-mice(irisdata,m=5,method='pmm',maxit=50)
+fulldata1<-complete(imputed,1)
+head(fulldata1)
+sum(is.na(fulldata1))
+```
+All missing values impuced using mice.
+
+
+# Regression Tree:
+```{r}
+library(rpart)
+rt<-rpart(mpg~.,data=traincars,method='anova')
+predtrain<-predict(rt,newdata=traincars)
+plot(traincars$mpg,col='red')
+lines(predtrain,col='blue')
+RMSE(predtrain,traincars$mpg)
+
+```
+
+# KNN:
+```{r}
+knnmedv<-train(medv~.,data=trainbost[,-15],
+               method="knn",
+               trControl=trcon,
+               metric='RMSE',
+               preProc=c('center','scale'),
+               tuneGrid=expand.grid(k=c(1:20)))
+knnmedv
+
+knnpred<-predict(knnmedv,newdata =trainbost)
+RMSE(knnpred,trainbost$medv)
+```
+
+
+# GLM:
+Generalised Linear models are used for classification.
+```{r}
+admit<-read.csv("/home/himank/Documents/workimages/admit.csv")
+part<-createDataPartition(y=admit$Admit,p=0.7,list=F)
+trainadmit<-admit[part,]
+testadmit<-admit[-part,]
+logmodel<-glm(Admit~.,data=trainadmit,family=binomial(link='logit'))
+nullModel<-glm(Admit~1,data=trainadmit,family=binomial(link='logit'))
+#overdispersion
+#if overdispersion >1 its overfitting
+# deviance is same as variance for classification models
+# var(observed) > var(predicted)
+logmodel$deviance/logmodel$df.residual
+logmodel$deviance
+aov(logmodel)
+
+
+```
+```{r}
+predtest<-predict(logmodel,newdata=testadmit,type='response')
+pred<-ifelse(predtest>0.7,1,0)
+confusionMatrix(factor(unname(pred)),factor(testadmit$Admit))
+
+logLik(logmodel)
+logLik(nullModel)
+```
+
+
+# Various tests:
+* comparitng two group var: f.test()
+
+* comparing more than two group var: bartlett.test()
+
+* comparing means of more than two groups: global anova(Anova for regression)
+  where alternate hypothesis is that atleast one of the coef is not zero.
+  
+* Partial T-test  To get which coef is significant in anova f ratio we use partialt test
+$\frac{(\beta-0)}{SE(\beta)}$
+$SE(\beta)= \sqrt{\frac{mse^2}{ss(x)}}$
+
+
+# Multinomial Logistic Regression:
+```{r}
+library(nnet)
+part<-createDataPartition(iris$Species,p=0.7,list=F)
+trainiris<-iris[part,]
+testiris<-iris[-part,]
+
+
+glmodel<-multinom(Species~.,data=iris,Hess=T,)
+summary(glmodel)
+pred<-predict(glmodel,testiris,type='prob')
+
+pred<-factor(max.col(pred),labels=c('setosa','versicolor','virginica'))
+confusionMatrix(pred,testiris$Species)
+# Coefficients are log of the odds. probability is:
+exp(-5.4584)/(1+exp(-5.4584))
+
+```
+
+```{r}
+xtabs(~Univ_Rating+Admit,data=admit)
+xtabs(~Admit,data=admit)
+```
+Therefore imbalanced dataset.
+We need to oversample or undersample.
+```{r}
+
+library(ROSE)
+dim(admit)
+oversample=ovun.sample(formula =Admit~.,data=admit, method='over',N=235*2)$data
+dim(oversample)
+sum(oversample[oversample$Admit==1,8])
+
+undersample=ovun.sample(Admit~.,data=admit,method='under',N=165*2)$data
+dim(undersample)
+sum(undersample[undersample$Admit==1,8])
+```
+
+# Feature Selection:
+Backword and Forward Feature selection is computationally expensive as all combinations of features are need to be modelled.
+A better approach is using boruta which intrisically uses random forests, bootstrap aggregating and feature subsampling for feature selection.
+```{r}
+library(Boruta)
+library(mlbench)
+data(Sonar)
+boruta=Boruta(Class~.,data=Sonar,doTrace=T,maxRuns=100)
+plot(boruta,las=2)
+boruta
+```
+Assigning all all tentative variables:
+```{r}
+final=TentativeRoughFix(boruta)
+plot(final)
+attStats(final)
+
+```
+
+```{r}
+getSelectedAttributes(final)
+getConfirmedFormula(final)
+
+getConfirmedFormula(boruta)
+#getting even tentative variables in the forula
+getNonRejectedFormula(boruta)
+
+```
+

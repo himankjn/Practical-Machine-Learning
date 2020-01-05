@@ -8,7 +8,7 @@ TEST(MODEL FINAL EVALUATION)
 
 
 eda
-feature extraction
+feature selection/extraction: baruta, forward/backward selection
 transform: min/max scale, normalize,stadardize   (may lose interpretability for accuracy)
 dimension reduction (if required)
 model choose
@@ -39,7 +39,7 @@ Can be used to classify binary classes.
 gives result as a probabilty b/w 0 and 1
 e(p)/1+e(p)
 interpret coef: coef give log of odds of outcome given 1 unit increase in variable. 
-in sklearn. parameter c controls regularization. c is basically variance(complexity) of mode. c increases variance increses and bias decreases.default: 1
+in sklearn c is inverse regularization . c increases variance increses and bias decreases.default: 1
 
 4)Poisson Regression:
 used for count data. e^coef gives estimated mean increase per unit increase in variable
@@ -47,7 +47,7 @@ used for count data. e^coef gives estimated mean increase per unit increase in v
 SVM:
 classifier. that use maximum margin. (maximize distnce between two classes using a hyperplane)
 kernels: are basically the way to separate classes. Linea kernel gives a linearly separable svm hyperplane.
-C is regularization parameter.  c is basically variance(complexity) of mode. c increases variance increses and bias decreases.
+C defines how strictly accurate u wanna be with training.  c basically increases with variance(complexity) of model. low c means model tried to have maximum margin even with some misclassification in trainnig.
 SVM:always scale data.
 used for high or low dimensional data. its versatile to the type of data. Not suitable for very large data sets.
 
@@ -57,7 +57,7 @@ kernelized svm transform the input data space to high dimensional feature space 
 kernels are basically similiarity measures between original data point and transformed data point in feature space. (the transformation function)
 Kernels: linear,poly, RBF(radial basis functiton). Default: RBF
 poly: parameter-degree
-rbf: parameter- gamma. gamma determines influence of each trainng point. small gamma = more influence i.e. the influence of every point reacher far.
+rbf: parameter- gamma. gamma determines influence of each trainng point. small gamma = more influence i.e. the influence of every point reacher far. more gamma means more rough boundaries/varince
 
 
 Decision Trees:
@@ -146,18 +146,18 @@ amse
 
 classification Evaluation:
 
-sensitivit/recall = tp/tp+fn.  	(leans towards classifying +ve)
+sensitivit/recall = tp/tp+fn.  	(leans towards classifying +ve): if someone has disease we better get them right.
 fraction of positive class that are classified correctly
 we want to get all positive points classified positive. eg get all cancer patients as postitive even if it means diagonosing healhy ppl as cancer
 
-Precison= tp/tp+fp         	(leans towards classifying -ve)
+Precison= tp/tp+fp         	(leans towards classifying -ve) : if we classified someone as having disease we better be right.
 fraction of positive predictions that are classified correctly
 we want to get all negative ones right. or reduce false positives. we want to be extremely careful while cclassifying something as positive
 eg commercial ad system. which ad to show.
 
 
-specificity:
-fp/tn+fp
+specificity: if someone doesnt have a disease we better get that right.
+ tn/tn+fp
 
 
 f1 score:
@@ -181,4 +181,29 @@ model can be optimized for different evalutaion metrics like recall precion etc 
 choose depending on application.
 
 
+
+
+
+
+
+
+To reduce False Negaive(like in case of cancer diagnosis or mobile churning) decrease the threshold for probability to less than 0.5. this way, even at smaller probabilities classifier predicts positive. hence reducing false negatives.
+the threshold in these cases should be approx equal to :
+t= r/(1-r)
+where 
+r= (Cfp-Ctn)/(Cfn-Ctp)
+refer: https://matterhorn.dce.harvard.edu/engage/player/watch.html?id=4676adde-557f-469b-bca8-5ffe868094eb
+
+
+IN ROC curve:
+
+𝑇𝑃𝑅=1/(𝑝(1𝐴)(𝑐𝐹𝑁−𝑐𝑇𝑃))*(𝑝(1𝐴)𝑐𝐹𝑃+𝑝(0𝐴)𝑐𝑇𝑁−𝐶𝑜𝑠𝑡)+𝑟(𝑝(0𝐴)/𝑝(1𝐴))×𝐹𝑃𝑅
+
+
+therefore,
+slope= r * p(0A)/p(1A)
+
+Therefore general fule of thumb:
+To penalize FN:  increase intercept
+To penalize FP: decrease intercept.
 
